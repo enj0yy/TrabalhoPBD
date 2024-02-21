@@ -1,4 +1,4 @@
-## Ter: 
+## Ter
 - Git
 - PHP 8
 - Composer
