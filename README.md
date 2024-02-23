@@ -8,6 +8,7 @@
 ## Executar
 - Configurar .env
 - composer install
+- npm install
 - php artisan migrate
 - npm install
 - npm run dev
