@@ -6,9 +6,27 @@ use Illuminate\Http\Request;
 use App\Models\Curtida;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Publicacao;
+use Inertia\Inertia;
 
 class PublicacaoController extends Controller
 {
+    public function show(String $id_publicacao)
+    {
+        $publicacao = Publicacao::with('comentarios')
+        ->with('usuario')
+        ->with('curtidas')
+        ->find($id_publicacao);
+
+
+        $publicacao->curtida = $publicacao->curtidas()->where('id_usuario', auth()->user()->id)->first();
+        $publicacao->curtidasCount = $publicacao->curtidas()->count();
+        $publicacao->comentariosCount = $publicacao->comentarios()->count();
+
+        return Inertia::render('Publicacao', [
+            'publicacao' => $publicacao,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -37,7 +55,7 @@ class PublicacaoController extends Controller
                     $curtida = new Curtida();
                     $curtida->id_usuario = Auth::user()->id;
                     $curtida->id_publicacao = $id_publicacao;
-                    $curtida->data = now();
+                    $curtida->data_interacao = now();
                     $curtida->save();
                 }
             } catch (Exception $e) {
@@ -58,7 +76,7 @@ class PublicacaoController extends Controller
         $publicacao->comentarios()->create([
             'id_usuario' => Auth::user()->id,
             'conteudo' => $request->conteudo,
-            'data' => now()
+            'data_interacao' => now()
         ]);
 
         response()->json(['success' => 'success'], 200);

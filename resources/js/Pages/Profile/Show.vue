@@ -5,32 +5,61 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 </script>
 
+<style>
+.seguindo_btn:hover{
+    background-color: #b94b4b !important;
+    transition:0.2s
+}
+.seguindo_btn:hover span {
+  display:none
+}
+.seguindo_btn:hover:before {
+  content:"Deixar de seguir";
+  transition:0.2s
+}
+</style>
 
 <template>
     <Head title="Profile" />
 
     <AuthenticatedLayout>
-        <div class="p-10">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-10">
             <img :src="'/img/'+ user.foto" class="w-20 h-20 rounded-full">
-            <p class="dark:text-white mt-5">{{user.nome}} <small class="dark:text-gray-500">   @{{user.nome_usuario}}</small> </p> 
-             
+            <p class="dark:text-white mt-5">{{user.nome}}    <small class="dark:text-gray-500 ml-1">@{{user.nome_usuario}}</small></p> 
+            
+            <p class="dark:text-gray-300 mt-2">{{user.biografia}}</p>
+            
+            <p class="dark:text-gray-500 mt-2">{{ user.seguidoresCount }} seguidores ‎ ‎ ‎ {{ user.seguindoCount }} seguindo</p>
+
             <template v-if="user.id != $page.props.auth.user.id">   
+                <template v-if="user.seguido">
+                    <button 
+                    v-on:click="seguir(user)"
+                    class="seguindo_btn mt-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                    <span>Seguindo</span>
+                </button>
+                </template>
+
+                <template v-else>
                 <button 
+                    v-on:click="seguir(user)"
                     class="mt-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
                     Seguir
                 </button>
+                </template>
             </template>
 
             <template v-else>
             <a :href="route('profile.edit')">
             <button 
                   class="mt-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
-                  Editar
+                  Editar Perfil
             </button>
             </a>
             </template>
         
-            <div class="sm:rounded-lg mt-5">
+
+            <div class="sm:rounded-lg mt-6">
                 <div v-for="publicacao in publicacoes" :key="publicacao.id" class="bg-white dark:bg-slate-800 p-5 shadow-md rounded-lg mb-5"
                 style="word-wrap: break-word;">
 
@@ -138,7 +167,37 @@ export default {
         publicacoes: {
             type: Object,
             required: true
-        }
+        },
+    },
+    methods : {
+    like: function(publicacao) {
+      axios.post(route('curtir', publicacao.id))
+      .then(response => {
+        publicacao.curtida = !publicacao.curtida;
+        if (publicacao.curtida)
+          publicacao.curtidasCount++;
+        else
+          publicacao.curtidasCount--;
+      })
+      .catch(error => {
+        alert("Ocorreu um erro ao fazer a requisição");
+      });
+      
+    },
+
+    seguir: function(user) {
+      axios.post(route('seguir', user.id))
+      .then(response => {
+        user.seguido = !user.seguido;
+        if (user.seguido)
+          user.seguidoresCount++;
+        else
+          user.seguidoresCount--;
+      })
+      .catch(error => {
+        alert("Ocorreu um erro ao fazer a requisição");
+      });
     }
+  },
 };
 </script>

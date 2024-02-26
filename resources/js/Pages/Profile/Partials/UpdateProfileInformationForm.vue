@@ -3,6 +3,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import TextArea from '@/Components/TextArea.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 const user = usePage().props.auth.user;
@@ -10,6 +11,7 @@ const user = usePage().props.auth.user;
 const form = useForm({
     nome: user.nome,
     email: user.email,
+    biografia: user.biografia,
 });
 
 const submit = () => {
@@ -38,6 +40,21 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.nome" />
+            </div>
+
+            <div>
+                <InputLabel for="biografia" value="Biografia" />
+
+                <TextArea
+                    id="biografia"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.biografia"
+                    autofocus
+                    autocomplete="biografia"
+                />
+
+                <InputError class="mt-2" :message="form.errors.biografia" />
             </div>
 
             <div>

@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->primary(['id_publicacao', 'id_usuario']);
 
-            $table->timestamp('data', $precision = 0);
+            $table->timestamp('data_interacao', $precision = 0);
         });
     }
 

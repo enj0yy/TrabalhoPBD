@@ -8,47 +8,13 @@ import axios from "axios";
 
 <script>
 
-const formPublicar = useForm({
-    conteudo: '',
-});
-
 export default {
   
   props: {
-    publicacoes: Object,
+    publicacao: Object,
   },
-  data() {
-    return {
-      publicacoes2: this.publicacoes,
-    }
-  },
-  mounted() {
-    window.addEventListener('scroll', (e) => {
-      let pixelsFromBottom = document.documentElement.offsetHeight - document.documentElement.scrollTop - window.innerHeight;
-      
-      if (pixelsFromBottom < 100) 
-      {
-        if (!this.publicacoes2.next_page_url) return;
-        axios.get(this.publicacoes2.next_page_url).then(response => {
-          this.publicacoes2 = {
-            ...response.data,
-            data: [...this.publicacoes2.data, ...response.data.data],
-           }
-        });
-      }
-    }); 
-  },
+
   methods : {
-    submit: function() {
-      formPublicar.post(route('publicar'), {
-        preserveScroll: true,
-        onFinish: () => {
-          formPublicar.defaults('conteudo', '')
-          formPublicar.reset()
-          this.publicacoes2 = this.publicacoes;
-        }
-      });
-    },
     like: function(publicacao) {
       axios.post(route('curtir', publicacao.id))
       .then(response => {
@@ -64,8 +30,6 @@ export default {
       
     }
   },
-
-  
 }
 
 function timeSince(datetime) {
@@ -99,52 +63,20 @@ function timeSince(datetime) {
 }
 </script>
 
+
 <template>
   <Head title="Home" />
 
   <AuthenticatedLayout>
-    <template #header>
-      <form @submit.prevent="submit">
-        <div class="flex flex-col">
-
-              <div class="flex flex-row">
-
-                <img :src="'./img/' + $page.props.auth.user.foto" alt="{{ $page.props.auth.user.nome }}"
-                  class="w-10 h-10 rounded-full">
-
-                <div class="flex flex-col px-2">
-                  <p class="text-gray-800 dark:text-white font-semibold">{{ $page.props.auth.user.nome }}</p>
-                  <p class="text-gray-500 text-sm">{{ '@' }}{{ $page.props.auth.user.nome_usuario }}</p>
-                </div>
-              </div>
-
-              <div class="flex flex-row">
-                <textarea id="conteudoForm" v-model="formPublicar.conteudo" 
-                  class="w-full mt-2 resize-none border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                  
-                  placeholder="O que você está pensando?"></textarea>
-              </div>
-
-              <div class="flex flex-row-reverse mt-2">
-                <button type="submit"
-                  class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
-                  Publicar
-                </button>
-              </div>
-
-        </div>
-      </form>
-    </template>
 
     <div class="py-7">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-        <div v-for="publicacao in publicacoes2.data" :key="publicacao.id" class="bg-white dark:bg-slate-800 p-5 shadow-md rounded-lg mb-5"
+        <div class="bg-white dark:bg-slate-800 p-5 shadow-md rounded-lg mb-5"
           style="word-wrap: break-word;">
 
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-2">
-              <img :src="'./img/' + publicacao.usuario.foto" alt="{{ publicacao.usuario.nome }}" class="w-10 h-10 rounded-full">
+              <img :src="'./../img/' + publicacao.usuario.foto" alt="{{ publicacao.usuario.nome }}" class="w-10 h-10 rounded-full">
               <div>
                 <a :href="route('profile.show', publicacao.usuario.nome_usuario)"><p class="text-gray-800 dark:text-white font-semibold">{{ publicacao.usuario.nome }}</p></a>
                 <p class="text-gray-500 text-sm">{{ '@' }}{{ publicacao.usuario.nome_usuario }} a {{ timeSince(publicacao.data_criacao) }}
@@ -184,9 +116,7 @@ function timeSince(datetime) {
 
             </div>
 
-            <a :href="route('publicacao.show', publicacao.id)">
-            <button 
-            class="flex justify-center items-center gap-2 px-2 rounded-full p-1">
+            <button class="flex justify-center items-center gap-2 px-2 rounded-full p-1">
               <svg width="22px" height="22px" viewBox="0 0 24 24" class="w-5 h-5 fill-current"
                 xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -200,10 +130,29 @@ function timeSince(datetime) {
               
               <span>{{ publicacao.comentariosCount }} Comentários</span>
             </button>
-            </a>
           </div>
-      </div>
-      <small  class="text-gray-500" >Você já viu todas publicações :(</small>
+        </div>
+
+          <div v-for="comentario in publicacao.comentarios" :key="comentario.id" 
+          class="p-5 mb-5 flex items-center justify-between bg-white dark:bg-slate-800 shadow-md rounded-lg">
+            
+            <div class="flex items-center space-x-2">
+              <img :src="'./../img/' + comentario.foto" alt="{{ comentario.nome }}" class="w-8 h-8 rounded-full mr-3">
+              <div>
+                <a :href="route('profile.show', comentario.nome_usuario)">
+                    
+                <p class="text-gray-800 dark:text-white ">
+                    {{ comentario.nome }}
+                <small class="text-gray-500 text-sm">
+                    {{ '@' }}{{ comentario.nome_usuario }} a {{ timeSince(comentario.pivot.data_interacao) }} 
+                </small></p> </a>
+                
+                <p class="text-gray-800 dark:text-slate-300"> {{ comentario.pivot.comentario }}</p>
+              </div>
+            </div>
+
+          </div>
+
     </div>
   </div>
 </AuthenticatedLayout></template>

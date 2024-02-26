@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreign('id_usuario')->references('id')->on('usuarios')->onDelete('cascade');
 
             $table->string('comentario');
-            $table->timestamp('data', $precision = 0);
+            $table->timestamp('data_interacao', $precision = 0);
         });
     }
 

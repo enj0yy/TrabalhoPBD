@@ -12,6 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\User;
 use App\Models\Publicacao;
+use DB;
 
 class ProfileController extends Controller
 {
@@ -20,7 +21,18 @@ class ProfileController extends Controller
      */
     public function show(String $nome_usuario): Response
     {
-        $user = User::where('nome_usuario', $nome_usuario)->firstOrFail();
+        $user = User::where('nome_usuario', $nome_usuario)->with("seguidores")->with("seguindo")->firstOrFail();
+        $user->seguido = $user->seguidores()->where('id_usuario_seguidor', auth()->user()->id)->first();
+
+        $user->seguidoresCount = DB::table('seguidores')
+        ->select('seguidores.*')
+        ->where('id_usuario_seguido', '=', $user->id)
+        ->count();
+
+        $user->seguindoCount = DB::table('seguidores')
+        ->select('seguidores.*')
+        ->where('id_usuario_seguidor', '=', $user->id)
+        ->count();
 
         $publicacoes = Publicacao::with('usuario')
         ->with('curtidas')->with('comentarios')
@@ -38,6 +50,20 @@ class ProfileController extends Controller
             'user' => $user,
             'publicacoes' => $publicacoes,
         ]);
+    }
+
+    public function follow(int $id_usuario)
+    {
+        $user = User::findOrFail($id_usuario);
+
+        if (Auth::user()->seguindo()->where('id_usuario_seguido', $user->id)->exists()) {
+            Auth::user()->seguindo()->detach($user->id);
+        } else {
+            Auth::user()->seguindo()->attach($user->id, ['data_interacao' => now()]);
+
+        }
+
+        response()->json(['success' => 'success'], 200);
     }
 
     /**
@@ -59,9 +85,10 @@ class ProfileController extends Controller
         $request->validate([
             'nome' => ['required', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:usuarios,email,'.$request->user()->id],
+            'biografia' => ['nullable', 'max:255'],
         ]);
 
-        $request->user()->fill($request->only('nome', 'email'));
+        $request->user()->fill($request->only('nome', 'email', 'biografia'));
 
         $request->user()->save();
 
