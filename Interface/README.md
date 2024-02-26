@@ -1,4 +1,4 @@
-## Ter
+## Precisa
 - Git
 - PHP 8
 - Composer
