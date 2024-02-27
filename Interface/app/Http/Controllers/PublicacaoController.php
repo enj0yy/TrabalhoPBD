@@ -7,6 +7,7 @@ use App\Models\Curtida;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Publicacao;
 use Inertia\Inertia;
+use DB;
 
 class PublicacaoController extends Controller
 {
@@ -68,14 +69,13 @@ class PublicacaoController extends Controller
     public function comment(Request $request, String $id_publicacao)
     {
         $request->validate([
-            'conteudo' => 'required'
+            'comentario' => 'required'
         ]);
 
-        $publicacao = Publicacao::find($id_publicacao);
-
-        $publicacao->comentarios()->create([
+        DB::table('comentarios')->insert([
+            'id_publicacao' => $id_publicacao,
             'id_usuario' => Auth::user()->id,
-            'conteudo' => $request->conteudo,
+            'comentario' => $request->comentario,
             'data_interacao' => now()
         ]);
 

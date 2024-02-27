@@ -1,3 +1,8 @@
+<style>
+  .comentar {
+    border-top: 1px solid rgb(17, 24, 39)
+  }
+</style>
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm,router  } from '@inertiajs/vue3';
@@ -8,6 +13,10 @@ import axios from "axios";
 
 <script>
 
+const formComentario = useForm({
+    comentario: '',
+});
+
 export default {
   
   props: {
@@ -15,6 +24,16 @@ export default {
   },
 
   methods : {
+    submit: function() {
+      formComentario.post(route('comentar', this.publicacao.id), {
+        preserveScroll: true,
+        onFinish: () => {
+          formComentario.defaults('comentario', '')
+          formComentario.reset()
+        }
+      });
+    },
+
     like: function(publicacao) {
       axios.post(route('curtir', publicacao.id))
       .then(response => {
@@ -130,11 +149,47 @@ function timeSince(datetime) {
               
               <span>{{ publicacao.comentariosCount }} Comentários</span>
             </button>
+
+          </div>
+
+          <div class="pt-5 mt-5 comentar">
+            <form @submit.prevent="submit">
+            <div class="flex flex-col">
+
+                  <div class="flex flex-row">
+
+                    <img :src="'.././img/' + $page.props.auth.user.foto" alt="{{ $page.props.auth.user.nome }}"
+                      class="w-10 h-10 rounded-full">
+
+                    <div class="flex flex-col px-2">
+                      <p class="text-gray-800 dark:text-white font-semibold">{{ $page.props.auth.user.nome }}</p>
+                      <p class="text-gray-500 text-sm">{{ '@' }}{{ $page.props.auth.user.nome_usuario }}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-row">
+                    <textarea id="conteudoForm" v-model="formComentario.comentario" 
+                      class="w-full mt-2 resize-none border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                      
+                      placeholder="Comentar..."></textarea>
+                  </div>
+
+                  <div class="flex flex-row-reverse mt-2">
+                    <button type="submit"
+                      class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                      Publicar
+                    </button>
+                  </div>
+
+            </div>
+            </form>
           </div>
         </div>
 
+        
+
           <div v-for="comentario in publicacao.comentarios" :key="comentario.id" 
-          class="p-5 mb-5 flex items-center justify-between bg-white dark:bg-slate-800 shadow-md rounded-lg">
+          class="p-5 mb-1 flex items-center justify-between bg-white dark:bg-slate-800 shadow-md rounded-lg">
             
             <div class="flex items-center space-x-2">
               <img :src="'./../img/' + comentario.foto" alt="{{ comentario.nome }}" class="w-8 h-8 rounded-full mr-3">

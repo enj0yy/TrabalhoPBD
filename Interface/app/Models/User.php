@@ -28,10 +28,6 @@ class User extends Authenticatable
         'senha',
     ];
 
-    protected $casts = [
-        'senha' => 'hashed',
-    ];
-
     protected $table = 'usuarios';
     public $timestamps = false;
 

@@ -29,6 +29,6 @@ class Publicacao extends Model
 
     public function comentarios(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'comentarios', 'id_publicacao', 'id_usuario')->withPivot('comentario','data_interacao');
+        return $this->belongsToMany(User::class, 'comentarios', 'id_publicacao', 'id_usuario')->withPivot('id_usuario', 'comentario','data_interacao');
     }
 }
