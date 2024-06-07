@@ -1,11 +1,11 @@
-## Precisa
+## Dependencies
 - Git
 - PHP 8
 - Composer
 - Node 20
 - Postgres/PgAdmin 4
 
-## Executar
+## Run
 - Configurar .env
 - composer install
 - npm install
