@@ -10,6 +10,5 @@
 - composer install
 - npm install
 - php artisan migrate
-- npm install
 - npm run dev
 - php artisan serve
